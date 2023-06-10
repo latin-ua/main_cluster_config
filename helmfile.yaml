@@ -1,0 +1,10 @@
+helmDefaults:
+    wait: true
+    createNamespace: false
+
+releases:
+  - name: rbac
+    chart: ./rbac
+    namespace: kube-system
+    values:
+      - values.yaml.gotmpl
