@@ -1,0 +1,47 @@
+name: Main pipeline
+on:
+  workflow_dispatch:
+  push:
+  pull_request:
+    types: [ reopened ]
+
+jobs:
+  diff:
+    name: Helmfile Diff
+    runs-on: ubuntu-latest
+    container: "ghcr.io/latin-ua/docker_images/terraform_pipeline:latest"
+    steps: 
+      - name: Checkout source code
+        uses: actions/checkout@v2
+      - name: Run helmfile diff
+        run: |
+          source assume-role.sh
+          helmfile diff
+
+  add_label:
+    name: Add label and Annotations
+    if: github.ref_name == 'master'
+    runs-on: ubuntu-latest
+    container: "ghcr.io/latin-ua/docker_images/terraform_pipeline:latest"
+    steps: 
+      - name: Checkout source code
+        uses: actions/checkout@v2
+      - name: Run helmfile upgrade
+        run: |
+          source assume-role.sh
+          kubectl label --overwrite configmaps aws-auth "app.kubernetes.io/managed-by=Helm"
+          kubectl annotate --overwrite configmaps aws-auth meta.helm.sh/release-name="rbac" meta.helm.sh/release-namespace="kube-system"
+          
+  upgrade:
+    name: Helmfile Upgrade
+    if: github.ref_name == 'master'
+    runs-on: ubuntu-latest
+    container: "ghcr.io/latin-ua/docker_images/terraform_pipeline:latest"
+    steps: 
+      - name: Checkout source code
+        uses: actions/checkout@v2
+      - name: Run helmfile upgrade
+        run: |
+          source assume-role.sh
+          helmfile upgrade      
+
