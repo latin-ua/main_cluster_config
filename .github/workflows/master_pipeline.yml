@@ -5,6 +5,11 @@ on:
   pull_request:
     types: [ reopened ]
 
+env:
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_DEFAULT_REGION: eu-central-1
+
 jobs:
   diff:
     name: Helmfile Diff
@@ -31,7 +36,7 @@ jobs:
           source assume-role.sh
           kubectl label --overwrite configmaps aws-auth "app.kubernetes.io/managed-by=Helm"
           kubectl annotate --overwrite configmaps aws-auth meta.helm.sh/release-name="rbac" meta.helm.sh/release-namespace="kube-system"
-          
+
   upgrade:
     name: Helmfile Upgrade
     if: github.ref_name == 'master'
