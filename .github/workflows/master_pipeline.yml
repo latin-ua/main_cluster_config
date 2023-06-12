@@ -21,6 +21,7 @@ jobs:
       - name: Run helmfile diff
         run: |
           source assume-role.sh
+          aws eks update-kubeconfig --name main-cluster
           helmfile diff
 
   add_label:
@@ -34,6 +35,7 @@ jobs:
       - name: Run helmfile upgrade
         run: |
           source assume-role.sh
+          aws eks update-kubeconfig --name main-cluster
           kubectl label --overwrite configmaps aws-auth "app.kubernetes.io/managed-by=Helm"
           kubectl annotate --overwrite configmaps aws-auth meta.helm.sh/release-name="rbac" meta.helm.sh/release-namespace="kube-system"
 
@@ -48,5 +50,6 @@ jobs:
       - name: Run helmfile upgrade
         run: |
           source assume-role.sh
+          aws eks update-kubeconfig --name main-cluster
           helmfile upgrade      
 
