@@ -20,7 +20,7 @@ jobs:
         uses: actions/checkout@v2
       - name: Run helmfile diff
         run: |
-          helm plugin list
+          ls -la /root/.local/share/helm/plugins/
           source assume-role.sh
           aws eks update-kubeconfig --name main-cluster
           helmfile diff
