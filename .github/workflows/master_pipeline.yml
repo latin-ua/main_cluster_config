@@ -21,6 +21,7 @@ jobs:
       - name: Run helmfile diff
         run: |
           ls -la /root/.local/share/helm/plugins/
+          helm plugin list
           source assume-role.sh
           aws eks update-kubeconfig --name main-cluster
           helmfile diff
