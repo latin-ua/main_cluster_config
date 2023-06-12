@@ -9,6 +9,7 @@ env:
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_DEFAULT_REGION: eu-central-1
+  HELM_PLUGINS: /root/.local/share/helm/plugins/
 
 jobs:
   diff:
@@ -20,8 +21,6 @@ jobs:
         uses: actions/checkout@v2
       - name: Run helmfile diff
         run: |
-          env
-          ls -la /root/.local/share/helm/plugins/
           helm plugin list
           source assume-role.sh
           aws eks update-kubeconfig --name main-cluster
