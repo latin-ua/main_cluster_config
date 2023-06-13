@@ -27,7 +27,6 @@ jobs:
 
   add_label:
     name: Add label and Annotations
-    if: github.ref_name == 'master'
     runs-on: ubuntu-latest
     container: "ghcr.io/latin-ua/docker_images/terraform_pipeline:latest"
     steps: 
@@ -37,8 +36,8 @@ jobs:
         run: |
           source assume-role.sh
           aws eks update-kubeconfig --name main-cluster
-          kubectl label --overwrite configmaps aws-auth "app.kubernetes.io/managed-by=Helm" -n kube-system
-          kubectl annotate --overwrite configmaps aws-auth meta.helm.sh/release-name="rbac" meta.helm.sh/release-namespace="kube-system"
+          kubectl label -n kube-system --overwrite configmaps aws-auth "app.kubernetes.io/managed-by=Helm"
+          kubectl annotate -n kube-system --overwrite configmaps aws-auth meta.helm.sh/release-name="rbac" meta.helm.sh/release-namespace="kube-system"
 
   upgrade:
     name: Helmfile Apply
