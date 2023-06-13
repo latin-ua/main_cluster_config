@@ -2,9 +2,18 @@ helmDefaults:
     wait: true
     createNamespace: false
 
+repositories:
+  - name: eks
+    url: https://aws.github.io/eks-charts
+
 releases:
   - name: rbac
     chart: ./rbac
+    namespace: kube-system
+    values:
+      - values.yaml.gotmpl
+  - name: aws-load-balancer-controller
+    chart: eks/aws-load-balancer-controller
     namespace: kube-system
     values:
       - values.yaml.gotmpl
