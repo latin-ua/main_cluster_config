@@ -32,7 +32,7 @@ jobs:
     steps: 
       - name: Checkout source code
         uses: actions/checkout@v2
-      - name: Run helmfile upgrade
+      - name: Run kubectl
         run: |
           source assume-role.sh
           aws eks update-kubeconfig --name main-cluster
