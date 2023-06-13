@@ -1,0 +1,55 @@
+name: Main pipeline
+on:
+  workflow_dispatch:
+  push:
+  pull_request:
+    types: [ reopened ]
+
+env:
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_DEFAULT_REGION: eu-central-1
+
+jobs:
+  diff:
+    name: Helmfile Diff
+    needs: add_label
+    runs-on: ubuntu-latest
+    container: "ghcr.io/latin-ua/docker_images/terraform_pipeline:latest"
+    steps: 
+      - name: Checkout source code
+        uses: actions/checkout@v2
+      - name: Run helmfile diff
+        run: |
+          source assume-role.sh
+          aws eks update-kubeconfig --name main-cluster
+          helmfile diff
+
+  add_label:
+    name: Add label and Annotations
+    runs-on: ubuntu-latest
+    container: "ghcr.io/latin-ua/docker_images/terraform_pipeline:latest"
+    steps: 
+      - name: Checkout source code
+        uses: actions/checkout@v2
+      - name: Run kubectl
+        run: |
+          source assume-role.sh
+          aws eks update-kubeconfig --name main-cluster
+          kubectl label -n kube-system --overwrite configmaps aws-auth "app.kubernetes.io/managed-by=Helm"
+          kubectl annotate -n kube-system --overwrite configmaps aws-auth meta.helm.sh/release-name="rbac" meta.helm.sh/release-namespace="kube-system"
+
+  upgrade:
+    name: Helmfile Apply
+    if: github.ref_name == 'master'
+    runs-on: ubuntu-latest
+    container: "ghcr.io/latin-ua/docker_images/terraform_pipeline:latest"
+    steps: 
+      - name: Checkout source code
+        uses: actions/checkout@v2
+      - name: Run helmfile apply
+        run: |
+          source assume-role.sh
+          aws eks update-kubeconfig --name main-cluster
+          helmfile apply      
+
