@@ -13,6 +13,7 @@ releases:
     values:
       - values.yaml.gotmpl
   - name: aws-load-balancer-controller
+    disableValidation: true
     chart: eks/aws-load-balancer-controller
     namespace: kube-system
     values:
