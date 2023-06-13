@@ -13,6 +13,7 @@ env:
 jobs:
   diff:
     name: Helmfile Diff
+    needs: add_label
     runs-on: ubuntu-latest
     container: "ghcr.io/latin-ua/docker_images/terraform_pipeline:latest"
     steps: 
@@ -36,20 +37,20 @@ jobs:
         run: |
           source assume-role.sh
           aws eks update-kubeconfig --name main-cluster
-          kubectl label --overwrite configmaps aws-auth "app.kubernetes.io/managed-by=Helm"
+          kubectl label --overwrite configmaps aws-auth "app.kubernetes.io/managed-by=Helm" -n kube-system
           kubectl annotate --overwrite configmaps aws-auth meta.helm.sh/release-name="rbac" meta.helm.sh/release-namespace="kube-system"
 
   upgrade:
-    name: Helmfile Upgrade
+    name: Helmfile Apply
     if: github.ref_name == 'master'
     runs-on: ubuntu-latest
     container: "ghcr.io/latin-ua/docker_images/terraform_pipeline:latest"
     steps: 
       - name: Checkout source code
         uses: actions/checkout@v2
-      - name: Run helmfile upgrade
+      - name: Run helmfile apply
         run: |
           source assume-role.sh
           aws eks update-kubeconfig --name main-cluster
-          helmfile upgrade      
+          helmfile apply      
 
